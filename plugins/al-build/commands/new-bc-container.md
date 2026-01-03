@@ -18,6 +18,12 @@ pwsh -NoProfile -ExecutionPolicy Bypass -File "${CLAUDE_PLUGIN_ROOT}/skills/al-b
 ## Options
 - `-ApplicationInsightsConnectionString <string>` - Azure Application Insights connection string for telemetry
 
+## Execution
+This command takes up to 30 minutes to complete. Execute as follows:
+1. Use the Bash tool with `run_in_background: true`
+2. Use TaskOutput with `block: true, timeout: 600000` to wait for completion
+3. Do NOT proceed to next steps until the command completes successfully
+
 ## What it does
 1. Creates a BC container with test toolkit
 2. Configures development settings (symbol loading, debugging)
