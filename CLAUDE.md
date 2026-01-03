@@ -29,7 +29,12 @@ plugins/
 ### Plugin Structure Pattern
 ```
 plugins/<plugin-name>/
-├── plugin.json          # Plugin metadata (name, version, keywords)
+├── .claude-plugin/
+│   └── plugin.json      # Plugin metadata (name, version)
+├── commands/            # Slash commands (optional)
+│   └── *.md
+├── hooks/               # Event hooks (optional)
+│   └── hooks.json
 └── skills/
     └── <plugin-name>/
         ├── SKILL.md     # Agent-facing documentation
