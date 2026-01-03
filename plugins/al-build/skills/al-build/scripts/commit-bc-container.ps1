@@ -9,10 +9,10 @@
     to spawn agent containers. The container must be stopped before committing.
 
 .PARAMETER ContainerName
-    Name of the container to commit (default: bctest).
+    Name of the container to commit. Defaults to container.name from al-build.json.
 
 .PARAMETER ImageName
-    Name for the snapshot image (default: bctest:snapshot).
+    Name for the snapshot image. Defaults to container.imageName from al-build.json.
 
 .EXAMPLE
     pwsh -File commit-bc-container.ps1
@@ -23,8 +23,8 @@
 
 [CmdletBinding()]
 param(
-    [string]$ContainerName = 'bctest',
-    [string]$ImageName = 'bctest:snapshot'
+    [string]$ContainerName,
+    [string]$ImageName
 )
 
 Set-StrictMode -Version Latest
@@ -33,6 +33,12 @@ $InformationPreference = 'Continue'
 
 # Import modules
 Import-Module "$PSScriptRoot/common.psm1" -Force -DisableNameChecking
+Import-Module "$PSScriptRoot/build-operations.psm1" -Force -DisableNameChecking
+
+# Load configuration and apply defaults if parameters not provided
+$config = Get-BuildConfig
+if (-not $ContainerName) { $ContainerName = $config.GoldenContainerName }
+if (-not $ImageName) { $ImageName = $config.ImageName }
 
 Write-BuildHeader 'Commit BC Container'
 
@@ -82,5 +88,5 @@ Write-BuildMessage -Type Success -Message "Snapshot image created: $ImageName ($
 Write-BuildHeader 'Commit Complete'
 Write-BuildMessage -Type Success -Message "Image '$ImageName' is ready"
 Write-BuildMessage -Type Info -Message "Next steps:"
-Write-BuildMessage -Type Detail -Message "1. Start golden container: docker start bctest"
+Write-BuildMessage -Type Detail -Message "1. Start golden container: docker start $ContainerName"
 Write-BuildMessage -Type Detail -Message "2. Spawn agent containers: pwsh $PSScriptRoot/new-agent-container.ps1"

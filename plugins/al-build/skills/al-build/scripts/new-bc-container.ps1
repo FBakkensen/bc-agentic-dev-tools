@@ -32,18 +32,19 @@ $InformationPreference = 'Continue'
 Import-Module "$PSScriptRoot/common.psm1" -Force -DisableNameChecking
 Import-Module "$PSScriptRoot/build-operations.psm1" -Force -DisableNameChecking
 
-# Load configuration (container name fixed to 'bctest' for golden container)
-$overrides = @{ ContainerName = 'bctest' }
+# Load configuration
+$overrides = @{}
 if ($ApplicationInsightsConnectionString) {
     $overrides['ApplicationInsightsConnectionString'] = $ApplicationInsightsConnectionString
 }
 $config = Get-BuildConfig -Overrides $overrides
 Set-BuildEnvironment -Config $config
+$containerName = $config.GoldenContainerName
 
 Write-BuildHeader 'New BC Container: Golden Container Setup'
 
 Write-BuildMessage -Type Info -Message "Container Configuration:"
-Write-BuildMessage -Type Detail -Message "Container Name: bctest"
+Write-BuildMessage -Type Detail -Message "Container Name: $containerName"
 Write-BuildMessage -Type Detail -Message "Username: $($config.ContainerUsername)"
 Write-BuildMessage -Type Detail -Message "Authentication: $($config.ContainerAuth)"
 Write-BuildMessage -Type Detail -Message "Artifact Country: $($config.ArtifactCountry)"
@@ -68,12 +69,12 @@ Write-BuildHeader 'Creating BC Container'
 
 $credential = Get-BCCredential -Username $config.ContainerUsername -Password $config.ContainerPassword
 
-Write-BuildMessage -Type Step -Message "Creating container 'bctest'..."
+Write-BuildMessage -Type Step -Message "Creating container '$containerName'..."
 Write-BuildMessage -Type Detail -Message "This may take several minutes..."
 
 $containerParams = @{
     accept_eula           = $true
-    containerName         = 'bctest'
+    containerName         = $containerName
     credential            = $credential
     auth                  = $config.ContainerAuth
     artifactUrl           = $artifactUrl
@@ -96,7 +97,7 @@ if ($config.ApplicationInsightsConnectionString) {
     Write-BuildMessage -Type Step -Message "Setting Application Insights connection string..."
 
     Set-BcContainerServerConfiguration `
-        -containerName 'bctest' `
+        -containerName $containerName `
         -keyName "ApplicationInsightsConnectionString" `
         -keyValue $config.ApplicationInsightsConnectionString
 
@@ -107,24 +108,24 @@ Write-BuildHeader 'Configuring Development Settings'
 
 Write-BuildMessage -Type Step -Message "Enabling symbol loading at startup..."
 Set-BcContainerServerConfiguration `
-    -containerName 'bctest' `
+    -containerName $containerName `
     -keyName "EnableSymbolLoadingAtServerStartup" `
     -keyValue "true"
 
 Write-BuildMessage -Type Step -Message "Enabling debugging..."
 Set-BcContainerServerConfiguration `
-    -containerName 'bctest' `
+    -containerName $containerName `
     -keyName "EnableDebugging" `
     -keyValue "true"
 
 Write-BuildMessage -Type Step -Message "Configuring data cache size..."
 Set-BcContainerServerConfiguration `
-    -containerName 'bctest' `
+    -containerName $containerName `
     -keyName "DataCacheSize" `
     -keyValue "11"
 
 Write-BuildMessage -Type Step -Message "Restarting BC service to apply development settings..."
-Restart-BcContainerServiceTier -containerName 'bctest'
+Restart-BcContainerServiceTier -containerName $containerName
 
 Write-BuildMessage -Type Success -Message "Development settings configured successfully"
 
@@ -146,7 +147,7 @@ try {
     Write-BuildMessage -Type Step -Message "Publishing Test Runner Service to container..."
     Write-BuildMessage -Type Detail -Message "This may take a minute..."
 
-    Publish-BcContainerApp -containerName 'bctest' `
+    Publish-BcContainerApp -containerName $containerName `
                            -appFile $testRunnerAppPath `
                            -skipVerification `
                            -sync `
@@ -169,7 +170,7 @@ Write-BuildHeader 'Installing AL-Go Dependencies'
 
 Write-BuildMessage -Type Step -Message "Checking for AL-Go dependencies..."
 $workspaceRoot = Resolve-Path (Join-Path $PSScriptRoot '../../../..')
-$installedCount = Install-AlGoDependencies -ContainerName 'bctest' -Credential $credential -WorkspaceRoot $workspaceRoot
+$installedCount = Install-AlGoDependencies -ContainerName $containerName -Credential $credential -WorkspaceRoot $workspaceRoot
 if ($installedCount -gt 0) {
     Write-BuildMessage -Type Success -Message "Installed $installedCount dependency app(s)"
 } else {
@@ -178,8 +179,8 @@ if ($installedCount -gt 0) {
 
 Write-BuildHeader 'Summary'
 
-Write-BuildMessage -Type Success -Message "BC container 'bctest' is ready!"
-Write-BuildMessage -Type Detail -Message "Container Name: bctest"
+Write-BuildMessage -Type Success -Message "BC container '$containerName' is ready!"
+Write-BuildMessage -Type Detail -Message "Container Name: $containerName"
 Write-BuildMessage -Type Detail -Message "Authentication: $($config.ContainerAuth)"
 Write-BuildMessage -Type Detail -Message "Credentials: $($config.ContainerUsername) / $($config.ContainerPassword)"
 Write-BuildMessage -Type Detail -Message "AL Test Runner Service: Installed"
@@ -203,7 +204,7 @@ Write-BuildHeader 'Preparing Container For Commit'
 # and the startup script recreates the folder fresh.
 Write-BuildMessage -Type Step -Message "Stopping IIS service inside container..."
 try {
-    docker exec bctest powershell -Command "Stop-Service W3SVC -Force -ErrorAction SilentlyContinue"
+    docker exec $containerName powershell -Command "Stop-Service W3SVC -Force -ErrorAction SilentlyContinue"
     Write-BuildMessage -Type Success -Message "IIS service stopped"
 } catch {
     Write-BuildMessage -Type Warning -Message "Could not stop IIS service: $($_.Exception.Message)"
@@ -211,7 +212,7 @@ try {
 
 Write-BuildMessage -Type Step -Message "Removing web client folder for clean hostname reconfiguration..."
 try {
-    docker exec bctest powershell -Command "Remove-Item 'C:\inetpub\wwwroot\BC' -Recurse -Force -ErrorAction SilentlyContinue"
+    docker exec $containerName powershell -Command "Remove-Item 'C:\inetpub\wwwroot\BC' -Recurse -Force -ErrorAction SilentlyContinue"
     Write-BuildMessage -Type Success -Message "Web client folder removed"
 } catch {
     Write-BuildMessage -Type Warning -Message "Could not remove web client folder: $($_.Exception.Message)"
@@ -221,8 +222,8 @@ Write-BuildHeader 'Stopping Container'
 
 Write-BuildMessage -Type Step -Message "Stopping container to prepare for commit..."
 try {
-    Stop-BcContainer -containerName 'bctest'
-    Write-BuildMessage -Type Success -Message "Container 'bctest' stopped"
+    Stop-BcContainer -containerName $containerName
+    Write-BuildMessage -Type Success -Message "Container '$containerName' stopped"
 } catch {
     Write-BuildMessage -Type Error -Message "Failed to stop container: $($_.Exception.Message)"
     throw
