@@ -10,5 +10,5 @@ Clone the AL Guidelines mirror to `_aldoc/alguidelines.dev`.
 
 ## Command
 ```powershell
-pwsh -NoProfile -ExecutionPolicy Bypass -File "${CLAUDE_PLUGIN_ROOT}/skills/al-agentic-guidelines/scripts/setup-alguidelines-mirror.ps1"
+pwsh -NoProfile -ExecutionPolicy Bypass -File "${CLAUDE_PLUGIN_ROOT}/skills/al-agentic-guidelines/scripts/setup-al-guidelines-mirror.ps1"
 ```
