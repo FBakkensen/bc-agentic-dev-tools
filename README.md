@@ -19,7 +19,7 @@ These skills are agent-agnostic and work with Claude Code, GitHub Copilot, Curso
 ### Add the marketplace
 
 ```bash
-/plugin marketplace add your-org/bc-agentic-dev-tools
+/plugin marketplace add fbakkensen/bc-agentic-dev-tools
 ```
 
 ### Install individual plugins
@@ -42,7 +42,7 @@ Add to your project's `.claude/settings.json`:
     "bc-agentic-dev-tools": {
       "source": {
         "source": "github",
-        "repo": "your-org/bc-agentic-dev-tools"
+        "repo": "fbakkensen/bc-agentic-dev-tools"
       }
     }
   },
