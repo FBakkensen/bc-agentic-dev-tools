@@ -72,13 +72,13 @@ try {
     $detectedTestAppName = $null
 
     # Search for app.json files to find app and test directories
-    $appJsonFiles = Get-ChildItem -Path $repoRoot -Filter 'app.json' -Recurse -ErrorAction SilentlyContinue |
+    $appJsonFiles = Get-ChildItem -Path $repoRoot -Filter 'app.json' -Recurse -Depth 3 -ErrorAction SilentlyContinue |
         Where-Object { $_.FullName -notmatch '[\\/]\.' } # Exclude hidden folders
 
     foreach ($appJsonFile in $appJsonFiles) {
         try {
             $appJson = Get-Content -LiteralPath $appJsonFile.FullName -Raw | ConvertFrom-Json
-            $relativeDir = $appJsonFile.Directory.FullName.Substring($repoRoot.Length + 1)
+            $relativeDir = [System.IO.Path]::GetRelativePath($repoRoot, $appJsonFile.Directory.FullName)
 
             # Detect if this is a test app (has "test" in name or dependencies reference test libraries)
             $isTestApp = $appJson.name -match 'test' -or
