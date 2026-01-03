@@ -5,14 +5,14 @@
     Create a new BC agent container from a snapshot image.
 
 .DESCRIPTION
-    Spawns a new container from a committed BC Docker image (default: bctest:snapshot).
+    Spawns a new container from a committed BC Docker image.
     If AgentName is not provided, uses the current Git branch name (sanitized).
 
 .PARAMETER AgentName
     Name for the agent container. If not provided, uses current git branch.
 
 .PARAMETER ImageName
-    Docker image to use (default: bctest:snapshot).
+    Docker image to use. Defaults to container.imageName from al-build.json.
 
 .PARAMETER MemoryLimit
     Memory limit for the container (default: 8g).
@@ -28,7 +28,7 @@
 [CmdletBinding()]
 param(
     [string]$AgentName,
-    [string]$ImageName = 'bctest:snapshot',
+    [string]$ImageName,
     [string]$MemoryLimit = '8g'
 )
 
@@ -38,6 +38,11 @@ $InformationPreference = 'Continue'
 
 # Import modules
 Import-Module "$PSScriptRoot/common.psm1" -Force -DisableNameChecking
+Import-Module "$PSScriptRoot/build-operations.psm1" -Force -DisableNameChecking
+
+# Load configuration and apply defaults if parameters not provided
+$config = Get-BuildConfig
+if (-not $ImageName) { $ImageName = $config.ImageName }
 
 $Exit = Get-ExitCode
 
@@ -87,7 +92,7 @@ if (-not $imageExists) {
     Write-BuildMessage -Type Error -Message "Image '$ImageName' not found"
     Write-BuildMessage -Type Info -Message "Create it by running:"
     Write-BuildMessage -Type Detail -Message "1. pwsh $PSScriptRoot/new-bc-container.ps1"
-    Write-BuildMessage -Type Detail -Message "2. docker stop bctest"
+    Write-BuildMessage -Type Detail -Message "2. docker stop $($config.GoldenContainerName)"
     Write-BuildMessage -Type Detail -Message "3. pwsh $PSScriptRoot/commit-bc-container.ps1"
     exit $Exit.Contract
 }

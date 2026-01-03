@@ -129,6 +129,8 @@ function Get-BuildConfig {
         ContainerAuth                       = Resolve-ContainerValue 'auth' 'ALBT_BC_CONTAINER_AUTH' 'UserPassword'
         ArtifactCountry                     = Resolve-ContainerValue 'artifactCountry' 'ALBT_BC_ARTIFACT_COUNTRY' 'w1'
         ArtifactSelect                      = Resolve-ContainerValue 'artifactSelect' 'ALBT_BC_ARTIFACT_SELECT' 'Latest'
+        GoldenContainerName                 = Resolve-ContainerValue 'name' 'ALBT_BC_GOLDEN_CONTAINER_NAME' 'bctest'
+        ImageName                           = Resolve-ContainerValue 'imageName' 'ALBT_BC_IMAGE_NAME' 'bctest:snapshot'
         Tenant                              = Resolve-Value 'tenant' 'ALBT_BC_TENANT' 'default'
         ValidateCurrent                     = Resolve-Value 'validateCurrent' 'ALBT_VALIDATE_CURRENT' '1'
         ApplicationInsightsConnectionString = Resolve-Value 'applicationInsightsConnectionString' 'ALBT_APPLICATION_INSIGHTS_CONNECTION_STRING' ''
@@ -164,6 +166,8 @@ function Set-BuildEnvironment {
     $env:ALBT_BC_CONTAINER_AUTH = $Config.ContainerAuth
     $env:ALBT_BC_ARTIFACT_COUNTRY = $Config.ArtifactCountry
     $env:ALBT_BC_ARTIFACT_SELECT = $Config.ArtifactSelect
+    $env:ALBT_BC_GOLDEN_CONTAINER_NAME = $Config.GoldenContainerName
+    $env:ALBT_BC_IMAGE_NAME = $Config.ImageName
     $env:ALBT_BC_TENANT = $Config.Tenant
     $env:ALBT_VALIDATE_CURRENT = $Config.ValidateCurrent
     $env:ALBT_APPLICATION_INSIGHTS_CONNECTION_STRING = $Config.ApplicationInsightsConnectionString

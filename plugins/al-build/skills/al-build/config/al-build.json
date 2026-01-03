@@ -12,6 +12,7 @@
   "serverInstance": "BC",
 
   "container": {
+    "name": "bctest",
     "username": "admin",
     "password": "P@ssw0rd",
     "auth": "UserPassword",
