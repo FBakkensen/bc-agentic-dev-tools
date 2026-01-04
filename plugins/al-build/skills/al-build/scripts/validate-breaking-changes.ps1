@@ -34,7 +34,7 @@ Write-BuildHeader 'Breaking Change Validation'
 
 # First build the app
 Write-BuildMessage -Type Step -Message "Building current app..."
-Invoke-ALBuild -AppDir $config.AppDir -WarnAsError:($config.WarnAsError -eq '1')
+Invoke-ALBuild -AppDir $config.AppDir -WarnAsError:(ConvertTo-Boolean $config.WarnAsError)
 
 # Resolve app directory
 $absoluteAppDir = (Resolve-Path -Path $config.AppDir).Path

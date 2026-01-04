@@ -6,7 +6,7 @@
   "testDir": "test",
   "testAppName": "Your Test App Name Here",
 
-  "warnAsError": true,
+  "warnAsError": false,
   "rulesetPath": "al.ruleset.json",
 
   "serverInstance": "BC",

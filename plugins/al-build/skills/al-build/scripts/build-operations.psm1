@@ -75,10 +75,10 @@ function Get-BuildConfig {
     # Helper function for three-tier resolution
     function Resolve-Value {
         param([string]$Key, [string]$EnvVar, $Default)
-        if ($Overrides.ContainsKey($Key) -and $Overrides[$Key]) { return $Overrides[$Key] }
+        if ($Overrides.ContainsKey($Key) -and $null -ne $Overrides[$Key]) { return $Overrides[$Key] }
         $envVal = [Environment]::GetEnvironmentVariable($EnvVar)
-        if ($envVal) { return $envVal }
-        if ($defaults.ContainsKey($Key) -and $defaults[$Key]) { return $defaults[$Key] }
+        if ($null -ne $envVal) { return $envVal }
+        if ($defaults.ContainsKey($Key) -and $null -ne $defaults[$Key]) { return $defaults[$Key] }
         return $Default
     }
 
@@ -105,12 +105,12 @@ function Get-BuildConfig {
     # Helper for nested container config values
     function Resolve-ContainerValue {
         param([string]$Key, [string]$EnvVar, $Default)
-        if ($Overrides.ContainsKey($Key) -and $Overrides[$Key]) { return $Overrides[$Key] }
+        if ($Overrides.ContainsKey($Key) -and $null -ne $Overrides[$Key]) { return $Overrides[$Key] }
         $envVal = [Environment]::GetEnvironmentVariable($EnvVar)
-        if ($envVal) { return $envVal }
+        if ($null -ne $envVal) { return $envVal }
         if ($defaults.ContainsKey('container') -and $defaults['container'] -is [hashtable]) {
             $container = $defaults['container']
-            if ($container.ContainsKey($Key) -and $container[$Key]) { return $container[$Key] }
+            if ($container.ContainsKey($Key) -and $null -ne $container[$Key]) { return $container[$Key] }
         }
         return $Default
     }
@@ -119,7 +119,7 @@ function Get-BuildConfig {
         AppDir                              = $appDir
         TestDir                             = $testDir
         TestAppName                         = Resolve-Value 'testAppName' 'ALBT_TEST_APP_NAME' '9A Advanced Manufacturing - Item Configurator.Test'
-        WarnAsError                         = Resolve-Value 'warnAsError' 'WARN_AS_ERROR' '1'
+        WarnAsError                         = Resolve-Value 'warnAsError' 'WARN_AS_ERROR' $false
         RulesetPath                         = Resolve-Value 'rulesetPath' 'RULESET_PATH' 'al.ruleset.json'
         ServerInstance                      = Resolve-Value 'serverInstance' 'ALBT_BC_SERVER_INSTANCE' 'BC'
         ContainerName                       = $containerName
@@ -970,6 +970,28 @@ function Copy-ALSymbolToCache {
 }
 
 # =============================================================================
+# Boolean Conversion
+# =============================================================================
+
+function ConvertTo-Boolean {
+    <#
+    .SYNOPSIS
+        Convert various value types to boolean
+    .DESCRIPTION
+        Handles bool, numeric (1/0), and string ('true'/'false') values
+    #>
+    param($Value)
+    if ($Value -is [bool]) { return $Value }
+    if ($Value -eq 1 -or $Value -eq '1') { return $true }
+    if ($Value -eq 0 -or $Value -eq '0') { return $false }
+    if ($Value -is [string]) {
+        if ($Value -ieq 'true') { return $true }
+        if ($Value -ieq 'false') { return $false }
+    }
+    return [bool]$Value
+}
+
+# =============================================================================
 # Module Exports
 # =============================================================================
 
@@ -977,6 +999,7 @@ Export-ModuleMember -Function @(
     # Configuration
     'Get-BuildConfig'
     'Set-BuildEnvironment'
+    'ConvertTo-Boolean'
 
     # Compiler
     'Get-ToolPackageId'
