@@ -105,7 +105,8 @@ $mainAppNeedsPublish = Test-AppNeedsPublish -AppDir $config.AppDir -AppJson $app
 # Step 6: Unpublish test app if main app changed (to allow main app republish)
 if ($mainAppNeedsPublish) {
     Start-Step 'unpublish-test'
-    Invoke-ALUnpublish -AppName $config.TestAppName
+    # Script block defers command resolution to runtime (avoids parse-time validation error)
+    & { Invoke-ALUnpublish -AppName $config.TestAppName }
     Stop-Step 'unpublish-test'
 }
 
