@@ -34,6 +34,7 @@ $InformationPreference = 'Continue'
 # Import modules
 Import-Module "$PSScriptRoot/common.psm1" -Force -DisableNameChecking
 Import-Module "$PSScriptRoot/build-operations.psm1" -Force -DisableNameChecking
+Import-BCContainerHelper
 
 # Load configuration and apply defaults if parameters not provided
 $config = Get-BuildConfig
@@ -65,7 +66,6 @@ Write-BuildMessage -Type Success -Message "Container found"
 $running = docker inspect $ContainerName --format '{{.State.Running}}' 2>$null
 if ($running -eq 'true') {
     Write-BuildMessage -Type Warning -Message "Container is running; stopping before commit..."
-    Import-BCContainerHelper
     Stop-BcContainer -containerName $ContainerName
     Write-BuildMessage -Type Success -Message "Container stopped"
 }
