@@ -58,7 +58,7 @@ Write-BuildHeader 'Page Script Replay'
 # Step 1: Build main app
 Start-Step 'build'
 Write-BuildMessage -Type Step -Message "Building main app..."
-Invoke-ALBuild -AppDir $config.AppDir -WarnAsError:($config.WarnAsError -eq '1')
+Invoke-ALBuild -AppDir $config.AppDir -WarnAsError:(ConvertTo-Boolean $config.WarnAsError)
 Stop-Step 'build'
 
 # Step 2: Ensure agent container is running

@@ -75,6 +75,6 @@ Test-driven development with telemetry verification.
 |----------|---------|-------------|
 | ALBT_APP_DIR | app | Main app directory |
 | ALBT_TEST_DIR | test | Test app directory |
-| WARN_AS_ERROR | 1 | Treat warnings as errors |
+| WARN_AS_ERROR | false | Treat warnings as errors (accepts: true/false, 1/0) |
 | ALBT_BC_CONTAINER_NAME | - | Docker container name |
 | ALBT_BC_ARTIFACT_COUNTRY | w1 | BC artifact country |

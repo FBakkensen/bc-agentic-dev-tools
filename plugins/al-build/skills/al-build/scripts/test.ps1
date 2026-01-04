@@ -80,7 +80,7 @@ if ($TestCodeunit) {
 
 # Step 1: Build main app
 Start-Step 'build'
-Invoke-ALBuild -AppDir $config.AppDir -WarnAsError:($config.WarnAsError -eq '1')
+Invoke-ALBuild -AppDir $config.AppDir -WarnAsError:(ConvertTo-Boolean $config.WarnAsError)
 Stop-Step 'build'
 
 # Step 2: Provision main app as local symbol for test app
@@ -90,7 +90,7 @@ Stop-Step 'provision-symbols'
 
 # Step 3: Build test app
 Start-Step 'build-test'
-Invoke-ALBuild -AppDir $config.TestDir -WarnAsError:($config.WarnAsError -eq '1')
+Invoke-ALBuild -AppDir $config.TestDir -WarnAsError:(ConvertTo-Boolean $config.WarnAsError)
 Stop-Step 'build-test'
 
 # Step 4: Ensure agent container is running
