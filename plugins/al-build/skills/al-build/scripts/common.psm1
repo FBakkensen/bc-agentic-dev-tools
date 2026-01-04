@@ -1266,12 +1266,6 @@ function Update-AgentContainerUsage {
     }
 
     $registry[$ContainerName].lastUsedAt = (Get-Date).ToString('o')
-
-    # Migrate legacy entries that don't have repoPath
-    if (-not $registry[$ContainerName].repoPath) {
-        $registry[$ContainerName].repoPath = Get-GitRepoIdentifier
-    }
-
     $registry | ConvertTo-Json -Depth 3 | Set-Content -LiteralPath $registryPath -Encoding UTF8
     Write-BuildMessage -Type Detail -Message "Updated usage timestamp for container '$ContainerName'"
 }
@@ -1370,12 +1364,7 @@ function Get-OrphanedAgentContainers {
         $branch = $entry.branch
 
         # Skip containers from other repos (only process containers belonging to current repo)
-        # Also skip legacy entries without repoPath - they'll get updated on next use
         if ($entry.repoPath -and $entry.repoPath -ne $currentRepoPath) {
-            continue
-        }
-        if (-not $entry.repoPath) {
-            # Legacy entry without repoPath - skip to avoid deleting containers from other repos
             continue
         }
 
