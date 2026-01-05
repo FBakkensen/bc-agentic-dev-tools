@@ -917,7 +917,11 @@ function Invoke-ALUnpublish {
 
     # Check if app is installed
     Write-BuildMessage -Type Step -Message "Checking if app is installed: $AppName"
-    $installedApp = Get-BcContainerAppInfo -containerName $config.ContainerName -Name $AppName
+    try {
+        $installedApp = Get-BcContainerAppInfo -containerName $config.ContainerName -Name $AppName
+    } catch {
+        throw "Failed to check app installation: $_"
+    }
 
     if (-not $installedApp) {
         Write-BuildMessage -Type Info -Message "App not installed, skipping unpublish"
@@ -928,13 +932,17 @@ function Invoke-ALUnpublish {
 
     # Unpublish the app
     Write-BuildMessage -Type Step -Message "Unpublishing: $AppName"
-    Unpublish-BcContainerApp `
-        -containerName $config.ContainerName `
-        -name $AppName `
-        -unInstall `
-        -doNotSaveData `
-        -doNotSaveSchema `
-        -force
+    try {
+        Unpublish-BcContainerApp `
+            -containerName $config.ContainerName `
+            -name $AppName `
+            -unInstall `
+            -doNotSaveData `
+            -doNotSaveSchema `
+            -force
+    } catch {
+        throw "Failed to unpublish app: $_"
+    }
     Write-BuildMessage -Type Success -Message "App unpublished"
 }
 
