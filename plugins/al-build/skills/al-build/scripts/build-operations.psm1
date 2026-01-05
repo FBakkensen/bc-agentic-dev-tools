@@ -913,23 +913,29 @@ function Invoke-ALUnpublish {
 
     $config = Get-BuildConfig
 
-    Write-BuildMessage -Type Step -Message "Unpublishing: $AppName"
-
     Import-BCContainerHelper
 
-    try {
-        Unpublish-BcContainerApp `
-            -containerName $config.ContainerName `
-            -name $AppName `
-            -unInstall `
-            -doNotSaveData `
-            -doNotSaveSchema `
-            -force `
-            -ErrorAction SilentlyContinue
-        Write-BuildMessage -Type Success -Message "App unpublished"
-    } catch {
-        Write-BuildMessage -Type Detail -Message "App may not have been published: $($_.Exception.Message)"
+    # Check if app is installed
+    Write-BuildMessage -Type Step -Message "Checking if app is installed: $AppName"
+    $installedApp = Get-BcContainerAppInfo -containerName $config.ContainerName -Name $AppName
+
+    if (-not $installedApp) {
+        Write-BuildMessage -Type Info -Message "App not installed, skipping unpublish"
+        return
     }
+
+    Write-BuildMessage -Type Detail -Message "App found - Version $($installedApp.Version)"
+
+    # Unpublish the app
+    Write-BuildMessage -Type Step -Message "Unpublishing: $AppName"
+    Unpublish-BcContainerApp `
+        -containerName $config.ContainerName `
+        -name $AppName `
+        -unInstall `
+        -doNotSaveData `
+        -doNotSaveSchema `
+        -force
+    Write-BuildMessage -Type Success -Message "App unpublished"
 }
 
 function Copy-ALSymbolToCache {
