@@ -1,5 +1,5 @@
 {
   "name": "tdd",
-  "description": "Red-Green-Refactor test workflow with telemetry verification. MANDATORY for ALL AL test work.",
-  "version": "0.0.3"
+  "description": "AL test development patterns. MANDATORY when planning, creating, or modifying tests. Guides Red-Green-Refactor todo structure.",
+  "version": "0.0.4"
 }
