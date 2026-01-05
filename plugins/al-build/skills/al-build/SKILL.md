@@ -49,6 +49,8 @@ Use the Task tool with `subagent_type: general-purpose` to run tests. This keeps
 ```
 subagent_type: general-purpose
 prompt: |
+  IMPORTANT: This is a READ-ONLY task. Do NOT edit any files.
+
   Run the AL build gate:
   pwsh "<skill-folder>/scripts/test.ps1"
 
