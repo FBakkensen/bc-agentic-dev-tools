@@ -1,16 +1,51 @@
 ---
 name: tdd
 description: >-
-  Red-Green-Refactor test workflow with telemetry verification.
-  MANDATORY for ALL AL test work - invoke proactively.
+  AL test development patterns with telemetry verification.
+  MANDATORY when: (1) planning test implementation, (2) creating new tests,
+  (3) modifying existing tests. Invoke proactively at ALL three stages.
+  PLANNING: Structure plans with Red-Green-Refactor phases and use TodoWrite
+  to track progress through each phase.
   CRITICAL RULE: DEBUG-* telemetry must be ZERO at both task START and END.
-  Adds temporary DEBUG-TEST-START markers during Red phase, verifies execution
-  in telemetry.jsonl during Green phase, removes all DEBUG-* during Refactor.
-  The agent MUST invoke this skill whenever test-related work is detected,
-  even if the user does not explicitly request it. (project)
 ---
 
-# Red-Green-Refactor Test Development
+# AL Test Development Patterns
+
+## Planning Test Work
+
+When planning any test-related task, structure your plan with Red-Green-Refactor phases:
+
+### Plan Structure
+
+**Phase 1 - Red (Design):**
+- Identify test scenarios to cover
+- Plan DEBUG-* telemetry checkpoints for verification
+- Determine which code paths need proof of execution
+
+**Phase 2 - Green (Implementation):**
+- Write test code with DEBUG-TEST-START markers
+- Add DEBUG-* checkpoints in production code at decision points
+- Run tests and verify telemetry.jsonl shows correct paths
+
+**Phase 3 - Refactor (Cleanup):**
+- Remove ALL DEBUG-* telemetry from test and production code
+- Verify zero DEBUG-* calls remain
+
+### TodoWrite Integration
+
+When implementing tests, create todos for each phase:
+
+```
+1. [Red] Add DEBUG-TEST-START to <TestName>
+2. [Red] Add DEBUG-BRANCH-* checkpoints to <ProductionCode>
+3. [Green] Run al-build and verify test passes
+4. [Green] Verify correct path in telemetry.jsonl
+5. [Refactor] Remove DEBUG-* from production code
+6. [Refactor] Remove DEBUG-TEST-START from test code
+7. [Refactor] Verify zero DEBUG-* calls remain
+```
+
+This structure ensures every test task follows the complete verification cycle.
 
 ## DEBUG Telemetry is Always Temporary
 
